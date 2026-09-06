@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0c0d0f" />
+  <meta name="description" content="Private progress photos and body measurements. All data stays on your device." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <title>FrameLog</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="lockScreen" class="lock">
+    <div class="logo" style="width:56px;height:56px;border-radius:16px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#c4a574" stroke-width="1.6"><path d="M7 7h3M14 7h3M7 17h3M14 17h3M7 7v3M7 14v3M17 7v3M17 14v3"/></svg>
+    </div>
+    <h2>FrameLog</h2>
+    <p style="color:var(--muted);margin:0">Enter PIN</p>
+    <div class="pin-dots" id="pinDots"><span></span><span></span><span></span><span></span></div>
+    <div class="pad-grid" id="pinPad"></div>
+  </div>
+
+  <div class="app" id="app">
+    <!-- HOME -->
+    <section class="view active" id="view-home">
+      <div class="top">
+        <div class="brand">
+          <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#c4a574" stroke-width="1.7">
+              <path d="M7 7h3M14 7h3M7 17h3M14 17h3M7 7v3M7 14v3M17 7v3M17 14v3"/>
+            </svg>
+          </div>
+          <div>
+            <h1>FrameLog</h1>
+            <p>Private check-ins</p>
+          </div>
+        </div>
+        <button class="icon-btn" data-go="settings" aria-label="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9c.3.6.9 1 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        </button>
+      </div>
+      <div class="pad">
+        <div class="hero-stats" id="homeStats"></div>
+        <div class="section-h">
+          <h2>Latest frames</h2>
+          <button class="linkish" data-go="gallery">See all</button>
+        </div>
+        <div id="homeGrid" class="grid"></div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="view" id="view-gallery">
+      <div class="top">
+        <div class="brand"><h1>Gallery</h1></div>
+        <button class="icon-btn" id="importBtn" aria-label="Import">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v10M8 9l4-4 4 4"/><path d="M5 19h14"/></svg>
+        </button>
+        <input type="file" id="importInput" accept="image/*" multiple class="hidden" />
+      </div>
+      <div class="filter-row" id="poseFilters"></div>
+      <div class="pad"><div id="galleryGrid" class="grid"></div></div>
+    </section>
+
+    <!-- CAPTURE -->
+    <section class="view capture-view" id="view-capture">
+      <div class="cam-wrap">
+        <video id="camVideo" autoplay playsinline muted></video>
+        <img id="ghostImg" alt="" />
+        <img id="reviewImg" class="hidden" alt="Review" />
+        <canvas id="snapCanvas" class="hidden"></canvas>
+        <div class="cam-ui" id="camUi">
+          <div class="cam-top">
+            <button class="close-cam" id="closeCam" aria-label="Close">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+            <div class="pill-row" id="posePills"></div>
+            <button class="flip-btn" id="flipCam" aria-label="Flip camera">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 8h12l-3-3M21 16H9l3 3"/><path d="M7 12a5 5 0 0 0 10 0"/></svg>
+            </button>
+          </div>
+          <div class="cam-bot">
+            <button class="ghost-toggle" id="ghostBtn">Ghost</button>
+            <button class="shutter" id="shutter" aria-label="Capture"><span></span></button>
+            <button class="ghost-toggle timer-btn" id="timerBtn">3s</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAVE / REVIEW FORM -->
+    <section class="view" id="view-save">
+      <div class="top">
+        <button class="icon-btn" id="backFromSave">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <div class="brand"><h1>Save check-in</h1></div>
+        <span style="width:40px"></span>
+      </div>
+      <img id="savePreview" class="detail-hero" alt="Preview" />
+      <div class="pad">
+        <div class="form" id="saveForm"></div>
+      </div>
+    </section>
+
+    <!-- DETAIL -->
+    <section class="view" id="view-detail">
+      <div class="top">
+        <button class="icon-btn" data-go="gallery">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <div class="brand"><h1 id="detailTitle">Frame</h1></div>
+        <button class="icon-btn" id="sharePhoto" aria-label="Share">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v14"/></svg>
+        </button>
+      </div>
+      <img id="detailImg" class="detail-hero" alt="" />
+      <div class="pad">
+        <div id="detailMeta"></div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn ghost" id="editPhoto">Edit details</button>
+          <button class="btn danger" id="deletePhoto">Delete</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPARE -->
+    <section class="view" id="view-compare">
+      <div class="top">
+        <div class="brand"><h1>Compare</h1></div>
+        <button class="linkish" id="toggleCompareMode">Slider</button>
+      </div>
+      <div class="pad">
+        <div class="compare-pick">
+          <button class="compare-slot" id="slotA"><div class="ph">Tap to pick earlier</div></button>
+          <button class="compare-slot" id="slotB"><div class="ph">Tap to pick later</div></button>
+        </div>
+        <p id="compareDelta" style="color:var(--muted);font-size:13px;margin:12px 0 0"></p>
+      </div>
+      <div class="slider-box hidden" id="sliderBox">
+        <img id="slideBefore" alt="Before" />
+        <img id="slideAfter" alt="After" />
+        <div class="slider-bar" id="sliderBar"></div>
+        <input type="range" min="1" max="99" value="50" class="slider-range" id="sliderRange" />
+      </div>
+    </section>
+
+    <!-- TRENDS -->
+    <section class="view" id="view-trends">
+      <div class="top"><div class="brand"><h1>Trends</h1></div></div>
+      <div class="pad" id="trendsPad"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" id="view-settings">
+      <div class="top">
+        <button class="icon-btn" data-go="home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <div class="brand"><h1>Settings</h1></div>
+        <span style="width:40px"></span>
+      </div>
+      <div class="pad" id="settingsPad"></div>
+    </section>
+
+    <!-- ONBOARD -->
+    <section class="view" id="view-onboard">
+      <div class="onboard">
+        <p style="color:var(--accent);letter-spacing:.12em;text-transform:uppercase;font-size:12px">Welcome</p>
+        <h2>Your photos stay on this phone.</h2>
+        <p>FrameLog is a private check-in log. No account. No cloud. Nothing leaves the device unless you export it.</p>
+        <ul class="bullets">
+          <li><strong>Same pose, same light.</strong> Ghost overlay lines up each shot with the last one.</li>
+          <li><strong>Numbers next to the frame.</strong> Weight and measurements sit on the photo, not in a separate app.</li>
+          <li><strong>Then vs now.</strong> Side-by-side or a slider — you pick the two dates.</li>
+        </ul>
+        <div class="form">
+          <div class="field">
+            <label>Units</label>
+            <select id="obUnits">
+              <option value="metric">kg / cm</option>
+              <option value="imperial">lb / in</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Height (for BMI, optional)</label>
+            <input id="obHeight" type="number" step="0.1" placeholder="optional" />
+          </div>
+        </div>
+        <button class="btn" id="obGo" style="margin-top:8px">Start logging</button>
+        <p style="font-size:12px;color:var(--faint);margin-top:16px">On iPhone: Safari share sheet → Add to Home Screen. Then it opens like an app.</p>
+      </div>
+    </section>
+
+    <nav class="nav" id="tabNav">
+      <button data-go="home" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
+        Home
+      </button>
+      <button data-go="gallery">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Gallery
+      </button>
+      <button data-go="capture" class="fab-wrap">
+        <span class="fab-capture">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg>
+        </span>
+      </button>
+      <button data-go="compare">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="8" height="14" rx="1.5"/><rect x="13" y="5" width="8" height="14" rx="1.5"/></svg>
+        Compare
+      </button>
+      <button data-go="trends">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5M4 19h16"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+        Trends
+      </button>
+    </nav>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="modal" id="pickerModal">
+    <div class="sheet">
+      <h3>Pick a photo</h3>
+      <div class="filter-row" id="pickerFilters" style="padding:0 0 12px"></div>
+      <div class="thumb-list" id="pickerList"></div>
+      <button class="btn ghost" id="pickerClose" style="margin-top:14px">Cancel</button>
+    </div>
+  </div>
+
+  <script src="db.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
